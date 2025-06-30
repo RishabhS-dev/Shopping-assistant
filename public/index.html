@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shopping Assistant - AI-Powered Shopping Experience</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🛍️</div>
+                <h1>Smart Shopping</h1>
+                <span class="beta-badge">AI-Powered</span>
+            </div>
+            <nav class="nav">
+                <a href="#home">Home</a>
+                <a href="#products">Products</a>
+                <a href="#seasonal">Seasonal</a>
+                <a href="#compare">Compare</a>
+                <button class="co-browse-btn" id="coBrowseBtn">
+                    <span class="co-browse-icon">👥</span>
+                    Co-Browse
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Co-browsing Status Bar -->
+    <div class="co-browse-status" id="coBrowseStatus" style="display: none;">
+        <div class="container">
+            <div class="status-info">
+                <span class="status-icon">👥</span>
+                <span id="sessionInfo">Co-browsing session active</span>
+                <span class="user-count" id="userCount">1 user</span>
+            </div>
+            <div class="status-actions">
+                <button class="share-btn" id="shareSessionBtn">Share Session</button>
+                <button class="leave-btn" id="leaveSessionBtn">Leave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2 class="hero-title">Find Your Perfect Product with Advanced AI</h2>
+            <p class="hero-subtitle">Experience the future of shopping with our intelligent assistant featuring image search, seasonal recommendations, smart comparisons, and collaborative browsing</p>
+            <div class="hero-features">
+                <div class="feature-badge">📸 Visual Search</div>
+                <div class="feature-badge">🧠 AI Recommendations</div>
+                <div class="feature-badge">⚖️ Smart Comparison</div>
+                <div class="feature-badge">🌟 Seasonal Intelligence</div>
+                <div class="feature-badge">👥 Co-browsing</div>
+                <div class="feature-badge">🎯 Personalized</div>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number" id="productCount">60+</div>
+                    <div class="stat-label">Products</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Brands</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">4.8★</div>
+                    <div class="stat-label">Avg Rating</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advanced Search Bar -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search for products, brands, or categories..." maxlength="100">
+                <div class="search-filters">
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="priceFilter">
+                        <option value="">All Prices</option>
+                        <option value="budget">Budget ($0-$100)</option>
+                        <option value="mid">Mid-range ($100-$500)</option>
+                        <option value="premium">Premium ($500+)</option>
+                    </select>
+                    <select id="sortFilter">
+                        <option value="rating">Best Rating</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="reviews">Most Reviews</option>
+                        <option value="discount">Best Deals</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="searchBtn">
+                    <span>🔍</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Filters -->
+    <section class="quick-filters">
+        <div class="container">
+            <h3>Quick Filters</h3>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Products</button>
+                <button class="filter-btn" data-filter="seasonal">Seasonal Picks</button>
+                <button class="filter-btn" data-filter="deals">Best Deals</button>
+                <button class="filter-btn" data-filter="trending">Trending</button>
+                <button class="filter-btn" data-filter="budget">Budget Friendly</button>
+                <button class="filter-btn" data-filter="premium">Premium</button>
+                <button class="filter-btn" data-filter="electronics">Electronics</button>
+                <button class="filter-btn" data-filter="clothing">Clothing</button>
+                <button class="filter-btn" data-filter="footwear">Footwear</button>
+                <button class="filter-btn" data-filter="accessories">Accessories</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section" id="products">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Featured Products</h2>
+                <div class="view-options">
+                    <button class="view-btn active" data-view="grid">⊞ Grid</button>
+                    <button class="view-btn" data-view="list">☰ List</button>
+                </div>
+            </div>
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+            <div class="load-more-container">
+                <button class="load-more-btn" id="loadMoreBtn">Load More Products</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Assistant Button -->
+    <div class="ai-assistant-btn" id="aiAssistantBtn">
+        <div class="ai-icon">🤖</div>
+        <div class="pulse-ring"></div>
+        <div class="notification-badge" id="notificationBadge" style="display: none;">1</div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+            <div class="header-info">
+                <h3>AI Shopping Assistant</h3>
+                <div class="ai-status">
+                    <div class="status-dot"></div>
+                    <span>Online & Learning</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="minimize-btn" id="minimizeChatBtn">−</button>
+                <button class="close-btn" id="closeChatBtn">×</button>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="message-text">
+                        Hi! I'm your advanced AI shopping assistant. I can help you with:
+                        <div class="feature-list">
+                            <div class="feature-item">📸 Upload images to find similar products</div>
+                            <div class="feature-item">🌟 Get personalized seasonal recommendations</div>
+                            <div class="feature-item">💰 Find products in your price range</div>
+                            <div class="feature-item">⚖️ Compare multiple products intelligently</div>
+                            <div class="feature-item">🎤 Use voice commands naturally</div>
+                            <div class="feature-item">👥 Share browsing sessions with friends</div>
+                            <div class="feature-item">🎯 Get smart recommendations based on trends</div>
+                        </div>
+                        Try asking: "Show me trending winter clothes under $200" or upload an image!
+                    </div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <div class="input-container">
+                <input type="text" id="chatInput" placeholder="Ask me anything or upload an image..." maxlength="500">
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                <button class="image-btn" id="imageBtn" title="Upload Image">
+                    📸
+                </button>
+                <button class="voice-btn" id="voiceBtn" title="Voice Input">
+                    <span class="mic-icon">🎤</span>
+                    <span class="recording-indicator"></span>
+                </button>
+                <button class="send-btn" id="sendBtn">Send</button>
+            </div>
+            <div class="quick-actions">
+                <button class="quick-action-btn" data-action="seasonal">🌟 Seasonal</button>
+                <button class="quick-action-btn" data-action="deals">💰 Best Deals</button>
+                <button class="quick-action-btn" data-action="trending">📈 Trending</button>
+                <button class="quick-action-btn" data-action="compare">⚖️ Compare</button>
+                <button class="quick-action-btn" data-action="gift">🎁 Gift Ideas</button>
+                <button class="quick-action-btn" data-action="cobrowse">👥 Co-Browse</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Overlay -->
+    <div class="chat-overlay" id="chatOverlay"></div>
+
+    <!-- Co-browsing Modal -->
+    <div class="modal" id="coBrowseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Start Co-browsing Session</h3>
+                <button class="close-btn" id="closeCoBrowseModal">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Share your shopping experience with friends and family!</p>
+                <div class="session-options">
+                    <button class="option-btn" id="createSessionBtn">
+                        <span class="option-icon">➕</span>
+                        <div class="option-text">
+                            <strong>Create New Session</strong>
+                            <small>Start a new co-browsing session</small>
+                        </div>
+                    </button>
+                    <div class="option-divider">or</div>
+                    <div class="join-session">
+                        <input type="text" id="sessionIdInput" placeholder="Enter session ID to join">
+                        <button class="option-btn" id="joinSessionBtn">
+                            <span class="option-icon">🔗</span>
+                            <span>Join Session</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div class="comparison-modal" id="comparisonModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Smart Product Comparison</h3>
+                <button class="close-btn" id="closeComparisonBtn">×</button>
+            </div>
+            <div class="comparison-content" id="comparisonContent">
+                <!-- Comparison content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="image-preview-modal" id="imagePreviewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Visual Search Results</h3>
+                <button class="close-btn" id="closeImagePreviewBtn">×</button>
+            </div>
+            <div class="image-preview-content" id="imagePreviewContent">
+                <!-- Image preview content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Session Modal -->
+    <div class="modal" id="shareSessionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Co-browsing Session</h3>
+                <button class="close-btn" id="closeShareModal">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Share this link with others to join your session:</p>
+                <div class="share-link-container">
+                    <input type="text" id="shareLink" readonly>
+                    <button class="copy-btn" id="copyLinkBtn">Copy</button>
+                </div>
+                <div class="share-options">
+                    <button class="share-option" data-platform="whatsapp">WhatsApp</button>
+                    <button class="share-option" data-platform="email">Email</button>
+                    <button class="share-option" data-platform="copy">Copy Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cursors for co-browsing -->
+    <div id="cursors-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
